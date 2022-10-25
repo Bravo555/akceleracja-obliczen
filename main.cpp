@@ -33,12 +33,12 @@ std::pair<std::vector<int>, int> searchWord(char text[], char soughtWord[])
         else
         {
             // currPosInWord = partialMatchTable.at(currPosInWord);
-            currPosInWord = 0;
+            currPosInWord = -1;
             if (currPosInWord < 0)
             {
+                currPosInText++;
                 currPosInWord++;
             }
-            currPosInText++;
         }
     }
 
