@@ -3,37 +3,61 @@
 #include <vector>
 #include <algorithm>
 
-std::pair<std::vector<int>, int> searchWord(char text[], char soughtWord[])
+std::vector<int> buildPartialMatchTable(std::string soughtWord)
 {
-    int soughtWordLen = (int)strlen(soughtWord);
+    std::vector<int> partialMatchTable(soughtWord.length() + 1);
+    partialMatchTable.at(0) = -1;
+    int currPos = 1;
+    int indexOfNextChar = 0;
+
+    while (currPos < soughtWord.length())
+    {
+        if (soughtWord[currPos] == soughtWord[indexOfNextChar])
+        {
+            partialMatchTable[currPos] = partialMatchTable[indexOfNextChar];
+        }
+        else
+        {
+            partialMatchTable[currPos] = indexOfNextChar;
+            while (indexOfNextChar >= 0 &&
+                   soughtWord[currPos] != soughtWord[indexOfNextChar])
+            {
+                indexOfNextChar = partialMatchTable[indexOfNextChar];
+            }
+        }
+        currPos++;
+        indexOfNextChar++;
+    }
+    partialMatchTable[currPos] = indexOfNextChar;
+
+    return partialMatchTable;
+}
+
+std::pair<std::vector<int>, int> searchWord(std::string text, std::string soughtWord)
+{
+    int soughtWordLen = soughtWord.length();
     std::vector<int> foundIndexVector = {};
     int numberOfWords = 0;
     int currPosInText = 0;
     int currPosInWord = 0;
-    std::vector<int> partialMatchTable(soughtWordLen);
+    std::vector<int> partialMatchTable = buildPartialMatchTable(soughtWord);
 
-    while (currPosInText < (int)strlen(text))
+    while (currPosInText < text.length())
     {
-        printf("TEXT: %d\nWORD: %d\n", currPosInText, currPosInWord);
         if (soughtWord[currPosInWord] == text[currPosInText])
         {
-            printf("%", text[currPosInText]);
             currPosInText++;
             currPosInWord++;
-            if (currPosInWord == soughtWordLen)
+            if (currPosInWord == soughtWordLen && partialMatchTable.at(soughtWordLen) != -1)
             {
                 foundIndexVector.push_back(currPosInText - currPosInWord);
                 numberOfWords++;
-                printf("A\n");
-                // currPosInWord = partialMatchTable.at(currPosInWord - 1);
-                currPosInWord = 0;
-                printf("B\n");
+                currPosInWord = partialMatchTable.at(currPosInWord);
             }
         }
         else
         {
-            // currPosInWord = partialMatchTable.at(currPosInWord);
-            currPosInWord = -1;
+            currPosInWord = partialMatchTable.at(currPosInWord);
             if (currPosInWord < 0)
             {
                 currPosInText++;
@@ -47,9 +71,8 @@ std::pair<std::vector<int>, int> searchWord(char text[], char soughtWord[])
 
 int main()
 {
-    std::pair<std::vector<int>, int> results = searchWord("DC ABC AB AC", "AB");
-    printf("AFTER\n");
-    printf("%d\n", results.second);
+    std::pair<std::vector<int>, int> results = searchWord("radosny rabarbar rabat rower rabarbar", "rabarbar");
+    printf("Number of results: %d\n", results.second);
     std::for_each(results.first.begin(), results.first.end(), [](int i)
                   { printf("%d\n", i); });
     return 0;
