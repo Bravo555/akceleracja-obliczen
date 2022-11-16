@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.1) # 3.1 << C_STANDARD 11
 
-project(HelloOpenCL LANGUAGES C)
+project(HelloOpenCL LANGUAGES CXX)
 
 find_package(OpenCL REQUIRED)
 
-add_executable(${PROJECT_NAME} Main.c)
+add_executable(${PROJECT_NAME} Main.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenCL::OpenCL)
 
