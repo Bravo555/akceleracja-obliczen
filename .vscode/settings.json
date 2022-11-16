@@ -1,0 +1,7 @@
+{
+    "cmake.sourceDirectory": "${workspaceFolder}/gpu",
+    "cmake.buildDirectory": "${workspaceFolder}/gpu/build",
+    "cmake.configureArgs": [
+        "-D CMAKE_TOOLCHAIN_FILE=${workspaceFolder}\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+    ],
+}
