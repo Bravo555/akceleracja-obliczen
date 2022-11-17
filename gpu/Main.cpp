@@ -3,7 +3,8 @@
 #include <CL/cl.hpp>
 #include <string>
 #include <iostream>
-#include <string>
+#include <fstream>
+#include <sstream> 
 
 using std::cout;
 using std::cerr;
@@ -38,22 +39,16 @@ cl::Kernel kernel;
 cl::Buffer bufX;
 cl::Buffer bufY;
 
-// The saxpy kernel
-string kernelStr      =
-    "__kernel void string_search(const global char* text,\n"
-    "                    __global char* keyword,\n"
-    "                    const uint keywordSize,\n"
-    "                    global uchar* indices)\n"
-    "{\n"
-    "    uint gid = get_global_id(0);\n"
-    "    for(int i = 0; i < keywordSize; ++i) {\n"
-    "        if(text[gid + i] != keyword[i]) {\n"
-    "            indices[gid] = false;\n"
-    "            return;\n"
-    "        }\n"
-    "    }\n"
-    "    indices[gid] = true;\n"
-    "}\n";
+cl::Program createProgramFromFile(cl::Context context, string fileName)
+{
+    std::ifstream f(fileName);
+    std::stringstream st;
+    st << f.rdbuf();
+    string kernelStr = st.str();
+    cl::Program::Sources sources(1, std::make_pair(kernelStr.c_str(), kernelStr.length()));
+    program = cl::Program(context, sources);
+    return program;
+}
 
 // Allocate and initialize memory on the host
 void initHost()
@@ -123,11 +118,9 @@ int main(int argc, char * argv[])
         bufY = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_float) * length, pY);
 
         // Load CL file, build CL program object, create CL kernel object
-        cl::Program::Sources sources(1, std::make_pair(kernelStr.c_str(), kernelStr.length()));
-        program = cl::Program(context, sources);
+        program = createProgramFromFile(context, "string_search_kernel.cl");
         program.build(devices);
         kernel = cl::Kernel(program, "string_search");
-
         // Set the arguments that will be used for kernel execution
         kernel.setArg(0, bufText);
         kernel.setArg(1, bufKeyword);
