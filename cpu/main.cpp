@@ -1,7 +1,9 @@
 #include <iostream>
-#include <string.h>
+#include <string>
 #include <vector>
 #include <algorithm>
+#include "file_utils.hpp"
+#include "timer.hpp"
 
 std::vector<int> buildPartialMatchTable(std::string soughtWord)
 {
@@ -69,11 +71,19 @@ std::pair<std::vector<int>, int> searchWord(std::string text, std::string sought
     return std::pair<std::vector<int>, int>(foundIndexVector, numberOfWords);
 }
 
-int main()
-{
-    std::pair<std::vector<int>, int> results = searchWord("radosny rabarbar rabat rower rabarbar", "rabarbar");
-    printf("Number of results: %d\n", results.second);
-    std::for_each(results.first.begin(), results.first.end(), [](int i)
-                  { printf("%d\n", i); });
+int main(int argc, char * argv[]) {
+    std::string textFile = argv[1];
+    std::string keywordFile = argv[2];
+    std::string resultsFile = argv[3];
+    Timer timer;
+
+    std::string text = readStrFromFile(textFile);
+    std::string keyword = readStrFromFile(keywordFile);
+
+    timer.start();
+    std::pair<std::vector<int>, int> results = searchWord(text, keyword);
+    long long elapsedUs = timer.getElapsedMicroseconds();
+    writeResultToFile(elapsedUs, results.first, resultsFile);
+
     return 0;
 }

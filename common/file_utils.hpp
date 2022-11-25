@@ -6,7 +6,8 @@
 #include <fstream>
 #include <sstream>
 
-const std::string delimiter = ",";
+const std::string fieldDelimiter = ", ";
+std::string indexDelimiter = ";";
 
 std::string readStrFromFile(const std::string &fileName)
 {
@@ -22,14 +23,28 @@ void writeStrToFile(const std::string &str, const std::string &fileName)
     fout << str;
 }
 
-void writeResultToFile(const long long elapsedUs, const std::string &resStr, const std::string &fileName)
+std::string matchesVectorToStr(const std::vector<int> &matches)
+{
+    std::string res = "";
+    for (int match : matches)
+    {
+        res += std::to_string(match);
+        res += indexDelimiter;
+    }
+    return res;
+}
+
+void writeResultToFile(const long long elapsedUs, const std::vector<int> &matches, const std::string &fileName)
 {
     std::ofstream fout(fileName);
+    std::string matchesStr = matchesVectorToStr(matches);
 
-    fout << "elapsed time [us], match indexes\n"
+    fout << "elapsed time [us], number of matches, matches\n"
          << elapsedUs
-         << delimiter
-         << resStr
+         << fieldDelimiter
+         << matches.size()
+         << fieldDelimiter
+         << matchesStr
          << "\n";
 }
 

@@ -20,16 +20,15 @@ void printVector(const std::string& arrayName, const std::vector<T>& arrayData) 
     cout << endl;
 }
 
-string resultToStr(const std::vector<cl_uchar>& arrayData) {
-    string resStr = "";
-    string separator = ";";
+// Convert result from bool vector to vector of indices of matches
+std::vector<int> getVectorOfMatches(const std::vector<cl_uchar>& arrayData) {
+    std::vector<int> matches;
     for (int i = 0; i < arrayData.size(); ++i) {
         if (arrayData[i] == 1) {
-            resStr += std::to_string(i);
-            resStr += separator;
+            matches.push_back(i);;
         }
     }
-    return resStr;
+    return matches;
 }
 
 cl::Program createProgramFromFile(cl::Context& context, const string& fileName) {
@@ -113,8 +112,8 @@ int main(int argc, char * argv[]) {
         // character
         // printVector("indices", std::vector<uint16_t>(results.begin(), results.end()));
         
-        string resultsStr = resultToStr(results);
-        writeResultToFile(elapsedUs, resultsStr, resultsFile);
+        std::vector<int> matches =  getVectorOfMatches(results);
+        writeResultToFile(elapsedUs, matches, resultsFile);
     }
     catch (cl::Error err)
     {
