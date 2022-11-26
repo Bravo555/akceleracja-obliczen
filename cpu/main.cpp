@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "file_utils.hpp"
-#include "timer.hpp"
+#include "../common/file_utils.hpp"
+#include "../common/timer.hpp"
 
 std::vector<int> buildPartialMatchTable(std::string soughtWord)
 {
