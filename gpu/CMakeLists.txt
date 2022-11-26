@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.1) # 3.1 << C_STANDARD 11
 
 project(HelloOpenCL LANGUAGES CXX)
 
+include_directories("../common")
+
 find_package(OpenCL REQUIRED)
 
 add_executable(${PROJECT_NAME} Main.cpp)

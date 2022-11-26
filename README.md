@@ -54,3 +54,26 @@ Celem skonfigurowania projektu proszę przechodzić przez przewodnik powyżej, m
 
     1. `Command Palette > CMake: Configure`
     2. `Command Palette > CMake: Run without debugging` (albo `Shift + F5`)
+
+## Uruchomienie programu
+
+Argumenty: 
+- ścieżka do pliku .txt z tekstem
+- ścieżka do pliku .txt z wzorcem
+- ścieżka do pliku .csv, gdzie zostanie zapisany wynik
+
+### Wersja GPU
+
+Przykład uruchomienia. Z katalogu `gpu/build`:
+
+```powershell
+Release\HelloOpenCL.exe ..\..\text_files\text1.txt ..\..\text_files\key1.txt ..\..\results\gpu-text1-key1.csv
+```
+
+### Wersja CPU
+
+Przykład uruchomienia. Z katalogu `cpu/build`:
+
+```powershell
+Release\kmp_cpu.exe ..\..\text_files\text1.txt ..\..\text_files\key1.txt ..\..\results\cpu-text1-key1.csv
+```
