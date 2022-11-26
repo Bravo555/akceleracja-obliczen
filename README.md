@@ -58,22 +58,23 @@ Celem skonfigurowania projektu proszę przechodzić przez przewodnik powyżej, m
 ## Uruchomienie programu
 
 Argumenty: 
+- ścieżka do kernela .cl (dla wersji GPU)
 - ścieżka do pliku .txt z tekstem
 - ścieżka do pliku .txt z wzorcem
 - ścieżka do pliku .csv, gdzie zostanie zapisany wynik
 
 ### Wersja GPU
 
-Przykład uruchomienia. Z katalogu `gpu/build`:
+Przykład uruchomienia. Z katalogu głównego `/`:
 
 ```powershell
-Release\HelloOpenCL.exe ..\..\text_files\text1.txt ..\..\text_files\key1.txt ..\..\results\gpu-text1-key1.csv
+gpu\build\Release\HelloOpenCL.exe gpu\string_search_kernel.cl text_files\text1.txt text_files\key1.txt results\gpu-text1-key1.csv
 ```
 
 ### Wersja CPU
 
-Przykład uruchomienia. Z katalogu `cpu/build`:
+Przykład uruchomienia. Z katalogu głównego `/`:
 
 ```powershell
-Release\kmp_cpu.exe ..\..\text_files\text1.txt ..\..\text_files\key1.txt ..\..\results\cpu-text1-key1.csv
+cpu\build\Release\kmp_cpu.exe text_files\text1.txt text_files\key1.txt results\cpu-text1-key1.csv
 ```
