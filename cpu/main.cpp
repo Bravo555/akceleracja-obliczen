@@ -7,8 +7,10 @@
 #include "../common/file_utils.hpp"
 #include "../common/timer.hpp"
 
-int main(int argc, char * argv[]) {
-    if (argc != 5) {
+int main(int argc, char *argv[])
+{
+    if (argc != 5)
+    {
         std::cout << "ERROR! Wrong number of arguments!" << std::endl;
         std::cout << "Usage: " << argv[0] << " TEXT PATTERN RESULT" << std::endl;
         return -1;
@@ -27,17 +29,24 @@ int main(int argc, char * argv[]) {
     std::string keyword = readStrFromFile(keywordFile);
     std::vector<int> results;
 
+    const int iterNum = 20;
+
     timer.start();
-    if (isMultiThreaded == "multithread")
+
+    writeCsvHeader(resultsFile);
+    for (int i = 0; i < iterNum; ++i)
     {
-        results = multiThreadKMP(text, keyword);
+        if (isMultiThreaded == "multithread")
+        {
+            results = multiThreadKMP(text, keyword);
+        }
+        else
+        {
+            results = singleThreadKMP(text, keyword);
+        }
+        long long elapsedUs = timer.getElapsedMicroseconds();
+        appendResultToFile(elapsedUs, results, resultsFile);
     }
-    else
-    {
-        results = singleThreadKMP(text, keyword);
-    }
-    long long elapsedUs = timer.getElapsedMicroseconds();
-    writeResultToFile(elapsedUs, results, resultsFile);
 
     return 0;
 }

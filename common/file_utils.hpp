@@ -34,18 +34,29 @@ std::string matchesVectorToStr(const std::vector<int> &matches)
     return res;
 }
 
-void writeResultToFile(const long long elapsedUs, const std::vector<int> &matches, const std::string &fileName)
+void writeCsvHeader(const std::string &fileName)
 {
     std::ofstream fout(fileName);
+    fout << "elapsed time [us], number of matches, matches\n";
+}
+
+void appendResultToFile(const long long elapsedUs, const std::vector<int> &matches, const std::string &fileName)
+{
+    std::ofstream fout(fileName, std::ios_base::app);
     std::string matchesStr = matchesVectorToStr(matches);
 
-    fout << "elapsed time [us], number of matches, matches\n"
-         << elapsedUs
+    fout << elapsedUs
          << fieldDelimiter
          << matches.size()
          << fieldDelimiter
          << matchesStr
          << "\n";
+}
+
+void writeResultToFile(const long long elapsedUs, const std::vector<int> &matches, const std::string &fileName)
+{
+    writeCsvHeader(fileName);
+    appendResultToFile(elapsedUs, matches, fileName);
 }
 
 #endif
