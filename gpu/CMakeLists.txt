@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1) # 3.1 << C_STANDARD 11
 
-project(HelloOpenCL LANGUAGES CXX)
+project(kmp_gpu LANGUAGES CXX)
 
 include_directories("../common")
 
