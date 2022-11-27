@@ -8,7 +8,7 @@
 #include "../common/timer.hpp"
 
 int main(int argc, char * argv[]) {
-    if (argc != 4) {
+    if (argc != 5) {
         std::cout << "ERROR! Wrong number of arguments!" << std::endl;
         std::cout << "Usage: " << argv[0] << " TEXT PATTERN RESULT" << std::endl;
         return -1;
