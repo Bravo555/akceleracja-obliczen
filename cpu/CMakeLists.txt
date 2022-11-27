@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 project(kmp_cpu LANGUAGES CXX)
 include_directories("../common")
-add_executable(${PROJECT_NAME} main.cpp)
+find_package(OpenMP REQUIRED)
+# add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} kmp_mp.cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
