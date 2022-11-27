@@ -11,7 +11,7 @@ std::vector<int> buildPartialMatchTable(const std::string &soughtWord)
 {
     std::vector<int> partialMatchTable(soughtWord.length() + 1);
     partialMatchTable.at(0) = -1;
-    int currPos = 1;
+    size_t currPos = 1;
     int indexOfNextChar = 0;
 
     while (currPos < soughtWord.length())
