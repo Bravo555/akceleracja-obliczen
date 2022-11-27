@@ -3,8 +3,11 @@
 #include <CL/cl.hpp>
 #include <string>
 #include <iostream>
-#include "file_utils.hpp"
-#include "timer.hpp"
+#include "../common/file_utils.hpp"
+#include "../common/timer.hpp"
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 using std::cout;
 using std::cerr;
@@ -38,10 +41,35 @@ cl::Program createProgramFromFile(cl::Context& context, const string& fileName) 
     return program;
 }
 
+std::vector<int16_t> buildPartialMatchTable(const std::string& keyword) {
+    std::vector<int16_t> partialMatchTable(keyword.length() + 1);
+    partialMatchTable.at(0) = -1;
+    int16_t currPos = 1;
+    int16_t indexOfNextChar = 0;
+
+    while(currPos < keyword.length()) {
+        if(keyword.at(currPos) == keyword.at(indexOfNextChar)) {
+            partialMatchTable.at(currPos) = partialMatchTable.at(indexOfNextChar);
+        }
+        else {
+            partialMatchTable.at(currPos) = indexOfNextChar;
+            while (indexOfNextChar >= 0 && keyword.at(currPos) != keyword.at(indexOfNextChar)) {
+                indexOfNextChar = partialMatchTable.at(indexOfNextChar);
+            }
+        }
+        currPos++;
+        indexOfNextChar++;
+    }
+    partialMatchTable.at(currPos) = indexOfNextChar;
+
+    return partialMatchTable;
+}
+
 int main(int argc, char * argv[]) {
-    string textFile = argv[1];
-    string keywordFile = argv[2];
-    string resultsFile = argv[3];
+    string kernelFile = argv[1];
+    string textFile = argv[2];
+    string keywordFile = argv[3];
+    string resultsFile = argv[4];
     Timer timer;
 
     cl::Program program;
@@ -64,16 +92,29 @@ int main(int argc, char * argv[]) {
         string text = readStrFromFile(textFile);
         string keyword = readStrFromFile(keywordFile);
 
+        // If text length is not a multiple of 2 * keyword length, we pad the end with extra spaces so we can divide the
+        // text into even blocks
+        size_t blockSize = keyword.size() * 2;
+        size_t remainder = text.size() % blockSize;
+
+        for(size_t i = remainder; i < blockSize; ++i) {
+            text += ' ';
+        }
+
         std::vector<cl_uchar> indices(text.size());
+
+        // Assume the keyword is shorter than 65 536 characters
+        std::vector<int16_t> partialMatchTable = buildPartialMatchTable(keyword);
 
         // Create OpenCL memory buffers
         cl::Buffer bufText(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_char) * (int)text.size(), (char*)text.data());
         cl::Buffer bufKeyword(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_char) * (int)keyword.size(), (char*)keyword.data());
+        cl::Buffer bufPartialMatchTable(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(uint16_t) * partialMatchTable.size(), partialMatchTable.data());
         cl::Buffer bufIndices(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_uchar) * (int)indices.size(), indices.data());
 
         // Load CL file, build CL program object, create CL kernel object
         // Modified to use a version copied by Cmake into build directory
-        program = createProgramFromFile(context, "../string_search_kernel.cl");
+        program = createProgramFromFile(context, kernelFile);
         program.build(devices);
         cl::Kernel kernel = cl::Kernel(program, "string_search");
 
@@ -81,15 +122,18 @@ int main(int argc, char * argv[]) {
         kernel.setArg(0, bufText);
         kernel.setArg(1, bufKeyword);
         kernel.setArg(2, (unsigned int)keyword.size());
-        kernel.setArg(3, bufIndices);
+        kernel.setArg(3, bufPartialMatchTable);
+        kernel.setArg(4, bufIndices);
         
         timer.start();
         // Print the input text
         // printVector("input", std::vector<char>(text.begin(), text.end()));
 
-        // Enqueue the kernel to the queue
-        // with appropriate global and local work sizes
-        queue.enqueueNDRangeKernel(kernel, cl::NDRange(0), cl::NDRange(text.size()));
+        // Enqueue the kernel to the queue with appropriate global and local work sizes
+        //
+        // String was padded, so blocks guaranteed to be the same size
+        size_t blocks = text.size() / keyword.size() - 1;
+        queue.enqueueNDRangeKernel(kernel, cl::NDRange(0), cl::NDRange(blocks));
 
         // Enqueue blocking call to read back indices buffer
         //
