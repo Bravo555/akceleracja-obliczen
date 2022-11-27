@@ -24,11 +24,11 @@ void printVector(const std::string& arrayName, const std::vector<T>& arrayData) 
 }
 
 // Convert result from bool vector to vector of indices of matches
-std::vector<int> getVectorOfMatches(const std::vector<cl_uchar>& arrayData) {
+std::vector<int> getVectorOfMatches(const std::vector<uint8_t>& arrayData) {
     std::vector<int> matches;
     for (int i = 0; i < arrayData.size(); ++i) {
         if (arrayData[i] == 1) {
-            matches.push_back(i);;
+            matches.push_back(i);
         }
     }
     return matches;
@@ -42,6 +42,8 @@ cl::Program createProgramFromFile(cl::Context& context, const string& fileName) 
 }
 
 std::vector<int16_t> buildPartialMatchTable(const std::string& keyword) {
+    if (keyword.length() > INT16_MAX) return std::vector<int16_t>();
+
     std::vector<int16_t> partialMatchTable(keyword.length() + 1);
     partialMatchTable.at(0) = -1;
     int16_t currPos = 1;
@@ -65,7 +67,13 @@ std::vector<int16_t> buildPartialMatchTable(const std::string& keyword) {
     return partialMatchTable;
 }
 
-int main(int argc, char * argv[]) {
+int main(int argc, char* argv[]) {
+    if (argc != 5) {
+        std::cout << "ERROR! Wrong number of arguments!" << std::endl;
+        std::cout << "Usage: " << argv[0] << " KERNEL TEXT PATTERN RESULT" << std::endl;
+        return -1;
+    }
+
     string kernelFile = argv[1];
     string textFile = argv[2];
     string keywordFile = argv[3];
@@ -105,6 +113,11 @@ int main(int argc, char * argv[]) {
 
         // Assume the keyword is shorter than 65 536 characters
         std::vector<int16_t> partialMatchTable = buildPartialMatchTable(keyword);
+        if (partialMatchTable.size() == 0) {
+            std::cout << "ERROR! Keyword too long" << std::endl;
+            std::cout << "Usage: " << argv[0] << " KERNEL TEXT PATTERN RESULT" << std::endl;
+            return -2;
+        }
 
         // Create OpenCL memory buffers
         cl::Buffer bufText(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_char) * (int)text.size(), (char*)text.data());
@@ -156,7 +169,7 @@ int main(int argc, char * argv[]) {
         // character
         // printVector("indices", std::vector<uint16_t>(results.begin(), results.end()));
         
-        std::vector<int> matches =  getVectorOfMatches(results);
+        std::vector<int> matches = getVectorOfMatches(results);
         writeResultToFile(elapsedUs, matches, resultsFile);
     }
     catch (cl::Error err)

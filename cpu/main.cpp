@@ -72,6 +72,12 @@ std::pair<std::vector<int>, int> searchWord(std::string text, std::string sought
 }
 
 int main(int argc, char * argv[]) {
+    if (argc != 4) {
+        std::cout << "ERROR! Wrong number of arguments!" << std::endl;
+        std::cout << "Usage: " << argv[0] << " TEXT PATTERN RESULT" << std::endl;
+        return -1;
+    }
+
     std::string textFile = argv[1];
     std::string keywordFile = argv[2];
     std::string resultsFile = argv[3];
