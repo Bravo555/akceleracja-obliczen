@@ -7,8 +7,12 @@
 #include "../common/file_utils.hpp"
 #include "../common/timer.hpp"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char * argv[]) {
+    if (argc != 4) {
+        std::cout << "ERROR! Wrong number of arguments!" << std::endl;
+        std::cout << "Usage: " << argv[0] << " TEXT PATTERN RESULT" << std::endl;
+        return -1;
+    }
     std::string textFile = argv[1];
     std::string keywordFile = argv[2];
     std::string resultsFile = argv[3];
