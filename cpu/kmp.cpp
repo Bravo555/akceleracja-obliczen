@@ -4,10 +4,6 @@
 #include <vector>
 #include <algorithm>
 #include <omp.h>
-#include <cstddef>
-#include <iostream>
-#include <stdexcept>
-#include <string_view>
 #include "../common/file_utils.hpp"
 #include "../common/timer.hpp"
 
@@ -41,15 +37,15 @@ std::vector<int> buildPartialMatchTable(const std::string &soughtWord)
     return partialMatchTable;
 }
 
-std::vector<int> searchWord(const std::string &text, const std::string &soughtWord, int offset = 0)
+std::vector<int> searchWord(const std::string &text, const std::string &soughtWord, int offset, int limit)
 {
     int soughtWordLen = soughtWord.length();
     std::vector<int> foundIndexVector = {};
-    int currPosInText = 0;
+    int currPosInText = offset;
     int currPosInWord = 0;
     std::vector<int> partialMatchTable = buildPartialMatchTable(soughtWord);
 
-    while (currPosInText < text.length())
+    while (currPosInText < limit)
     {
         if (soughtWord[currPosInWord] == text[currPosInText])
         {
@@ -57,7 +53,7 @@ std::vector<int> searchWord(const std::string &text, const std::string &soughtWo
             currPosInWord++;
             if (currPosInWord == soughtWordLen && partialMatchTable.at(soughtWordLen) != -1)
             {
-                foundIndexVector.push_back(currPosInText - currPosInWord + offset);
+                foundIndexVector.push_back(currPosInText - currPosInWord);
                 currPosInWord = partialMatchTable.at(currPosInWord);
             }
         }
@@ -75,50 +71,42 @@ std::vector<int> searchWord(const std::string &text, const std::string &soughtWo
     return foundIndexVector;
 }
 
-std::pair<std::vector<std::string>, std::vector<int>> divideTextWithOffsets(const std::string &text, int numberOfSections)
+std::vector<int> getTextOffsets(const std::string &text, int numberOfSections)
 {
-    std::vector<std::string> dividedText = std::vector<std::string>();
     std::vector<int> offsets = std::vector<int>();
     int sectionLen;
     if (numberOfSections == 0 || numberOfSections == 1)
     {
-        sectionLen = text.length();
-        dividedText.push_back(text);
-        return std::pair<std::vector<std::string>, std::vector<int>>(dividedText, offsets);
+        offsets.push_back(0);
+        offsets.push_back(text.length());
+        return offsets;
     }
     else
     {
-        sectionLen = text.length() / numberOfSections;
+        sectionLen = text.size() / numberOfSections;
     }
     int lastDivisionIndex = 0;
-
     for (int i = 1; i < numberOfSections + 1; i++)
     {
-        if (sectionLen * i >= text.length())
-        {
-            printf("Something went wrong!");
-            continue;
-        }
         int length = text.find_first_of(" ", sectionLen * i) - lastDivisionIndex;
-        std::string temp = text.substr(lastDivisionIndex, length);
         offsets.push_back(lastDivisionIndex);
         lastDivisionIndex += length;
-        dividedText.push_back(temp);
     }
+    offsets.push_back(text.length());
 
-    return std::pair<std::vector<std::string>, std::vector<int>>(dividedText, offsets);
+    return offsets;
 }
 
 std::vector<int> multiThreadKMP(const std::string &text, const std::string &keyword)
 {
     std::vector<int> results = std::vector<int>();
-    std::pair<std::vector<std::string>, std::vector<int>> dividedTextAndOffsets = divideTextWithOffsets(text, omp_get_max_threads());
+    std::vector<int> textOffsets = getTextOffsets(text, omp_get_max_threads());
 #pragma omp parallel
     {
 #pragma omp for
-        for (int i = 0; i < omp_get_num_threads(); i++)
+        for (int i = 0; i < omp_get_max_threads(); i++)
         {
-            std::vector<int> tempResults = searchWord(dividedTextAndOffsets.first.at(i), keyword, dividedTextAndOffsets.second.at(i));
+            std::vector<int> tempResults = searchWord(text, keyword, textOffsets.at(i), textOffsets.at(i + 1));
 
 #pragma omp critical
             results.insert(results.end(), tempResults.begin(), tempResults.end());
