@@ -115,20 +115,7 @@ std::vector<int> multiThreadKMP(const std::string &text, const std::string &keyw
     return results;
 }
 
-int main(int argc, char *argv[])
+std::vector<int> singleThreadKMP(const std::string &text, const std::string &keyword)
 {
-    std::string textFile = argv[1];
-    std::string keywordFile = argv[2];
-    std::string resultsFile = argv[3];
-    Timer timer;
-
-    std::string text = readStrFromFile(textFile);
-    std::string keyword = readStrFromFile(keywordFile);
-
-    timer.start();
-    std::vector<int> results = multiThreadKMP(text, keyword);
-    long long elapsedUs = timer.getElapsedMicroseconds();
-    writeResultToFile(elapsedUs, results, resultsFile);
-
-    return 0;
+    return searchWord(text, keyword, 0, text.length());
 }
