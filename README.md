@@ -68,7 +68,7 @@ Argumenty:
 Przykład uruchomienia. Z katalogu głównego `/`:
 
 ```powershell
-gpu\build\Release\HelloOpenCL.exe gpu\string_search_kernel.cl text_files\text1.txt text_files\key1.txt results\gpu-text1-key1.csv
+gpu\build\Release\kmp_gpu.exe gpu\string_search_kernel.cl text_files\text1.txt text_files\key1.txt results\gpu-text1-key1.csv
 ```
 
 ### Wersja CPU
