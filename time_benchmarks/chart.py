@@ -56,13 +56,23 @@ def get_text_len_vs_time():
 
 def get_key_len_vs_time():
     gpu_times = []
+    cpu_sp_times = []
+    cpu_mp_times = []
 
     for x in range(1, count+1):
         gpu_path = f"{res_dir}/gpu-text{count}-key{x}.csv"
+        cpu_sp_path = f"{res_dir}/cpu-sp-text{count}-key{x}.csv"
+        cpu_mp_path = f"{res_dir}/cpu-mp-text{count}-key{x}.csv"
+        
         gpu_time = get_exec_time(gpu_path)
-        gpu_times.append(gpu_time)
+        cpu_sp_time = get_exec_time(cpu_sp_path)
+        cpu_mp_time = get_exec_time(cpu_mp_path)
 
-    return gpu_times
+        gpu_times.append(gpu_time)
+        cpu_sp_times.append(cpu_sp_time)
+        cpu_mp_times.append(cpu_mp_time)
+
+    return gpu_times, cpu_sp_times, cpu_mp_times
 
 def main():
     gpu_times, cpu_sp_times, cpu_mp_times = get_text_len_vs_time()
@@ -83,9 +93,11 @@ def main():
 
     x = get_text_lengths("key")
 
-    gpu_times_key = get_key_len_vs_time()
+    gpu_times, cpu_sp_times, cpu_mp_times = get_key_len_vs_time()
 
-    ar[1].plot(x, gpu_times_key, color="r", marker="*", label="GPU")
+    ar[1].plot(x, gpu_times, color="r", marker="*", label="GPU")
+    ar[1].plot(x, cpu_sp_times, color="g", marker="*", label="CPU")
+    ar[1].plot(x, cpu_mp_times, color="b", marker="*", label="CPU multithread")   
     ar[1].set_xlabel("Liczba znaków wzorca")
     ar[1].set_ylabel("Czas wykonania [μs]")
     ar[1].set_title("Czas względem długości wzorca")
