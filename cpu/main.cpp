@@ -7,15 +7,10 @@
 #include "../common/file_utils.hpp"
 #include "../common/timer.hpp"
 
-<<<<<<< HEAD
 int main(int argc, char *argv[])
 {
     if (argc != 5)
     {
-=======
-int main(int argc, char * argv[]) {
-    if (argc != 5) {
->>>>>>> main
         std::cout << "ERROR! Wrong number of arguments!" << std::endl;
         std::cout << "Usage: " << argv[0] << " TEXT PATTERN RESULT" << std::endl;
         return -1;
