@@ -25,9 +25,9 @@ void printVector(const std::string &arrayName, const std::vector<T> &arrayData)
 }
 
 // Convert result from bool vector to vector of indices of matches
-std::vector<int> getVectorOfMatches(const std::vector<uint8_t> &arrayData)
+std::vector<size_t> getVectorOfMatches(const std::vector<uint8_t> &arrayData)
 {
-    std::vector<int> matches;
+    std::vector<size_t> matches;
     for (int i = 0; i < arrayData.size(); ++i)
     {
         if (arrayData[i] == 1)
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
             // character
             // printVector("indices", std::vector<uint16_t>(results.begin(), results.end()));
 
-            std::vector<int> matches = getVectorOfMatches(results);
+            std::vector<size_t> matches = getVectorOfMatches(results);
             appendResultToFile(elapsedUs, matches, resultsFile);
         }
     }

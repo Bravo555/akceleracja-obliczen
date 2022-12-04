@@ -23,10 +23,10 @@ void writeStrToFile(const std::string &str, const std::string &fileName)
     fout << str;
 }
 
-std::string matchesVectorToStr(const std::vector<int> &matches)
+std::string matchesVectorToStr(const std::vector<size_t> &matches)
 {
     std::string res = "";
-    for (int match : matches)
+    for (auto match : matches)
     {
         res += std::to_string(match);
         res += indexDelimiter;
@@ -40,7 +40,7 @@ void writeCsvHeader(const std::string &fileName)
     fout << "elapsed time [us], number of matches, matches\n";
 }
 
-void appendResultToFile(const long long elapsedUs, const std::vector<int> &matches, const std::string &fileName)
+void appendResultToFile(const long long elapsedUs, const std::vector<size_t> &matches, const std::string &fileName)
 {
     std::ofstream fout(fileName, std::ios_base::app);
     std::string matchesStr = matchesVectorToStr(matches);
@@ -53,7 +53,7 @@ void appendResultToFile(const long long elapsedUs, const std::vector<int> &match
          << "\n";
 }
 
-void writeResultToFile(const long long elapsedUs, const std::vector<int> &matches, const std::string &fileName)
+void writeResultToFile(const long long elapsedUs, const std::vector<size_t> &matches, const std::string &fileName)
 {
     writeCsvHeader(fileName);
     appendResultToFile(elapsedUs, matches, fileName);

@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
     std::string text = readStrFromFile(textFile);
     std::string keyword = readStrFromFile(keywordFile);
-    std::vector<int> results;
+    std::vector<size_t> results;
 
     const int iterNum = 20;
 

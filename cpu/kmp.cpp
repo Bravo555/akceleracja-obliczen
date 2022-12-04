@@ -37,11 +37,11 @@ std::vector<int> buildPartialMatchTable(const std::string &soughtWord)
     return partialMatchTable;
 }
 
-std::vector<int> searchWord(const std::string &text, const std::string &soughtWord, int offset, int limit)
+std::vector<size_t> searchWord(const std::string &text, const std::string &soughtWord, size_t offset, size_t limit)
 {
-    int soughtWordLen = soughtWord.length();
-    std::vector<int> foundIndexVector = {};
-    int currPosInText = offset;
+    size_t soughtWordLen = soughtWord.length();
+    std::vector<size_t> foundIndexVector = {};
+    size_t currPosInText = offset;
     int currPosInWord = 0;
     std::vector<int> partialMatchTable = buildPartialMatchTable(soughtWord);
 
@@ -71,10 +71,10 @@ std::vector<int> searchWord(const std::string &text, const std::string &soughtWo
     return foundIndexVector;
 }
 
-std::vector<int> getTextOffsets(const std::string &text, int numberOfSections)
+std::vector<size_t> getTextOffsets(const std::string &text, int numberOfSections)
 {
-    std::vector<int> offsets = std::vector<int>();
-    int sectionLen;
+    auto offsets = std::vector<size_t>();
+    size_t sectionLen;
     if (numberOfSections == 0 || numberOfSections == 1)
     {
         offsets.push_back(0);
@@ -85,10 +85,10 @@ std::vector<int> getTextOffsets(const std::string &text, int numberOfSections)
     {
         sectionLen = text.size() / numberOfSections;
     }
-    int lastDivisionIndex = 0;
+    size_t lastDivisionIndex = 0;
     for (int i = 1; i < numberOfSections + 1; i++)
     {
-        int length = text.find_first_of(" ", sectionLen * i) - lastDivisionIndex;
+        size_t length = text.find_first_of(" ", sectionLen * i) - lastDivisionIndex;
         offsets.push_back(lastDivisionIndex);
         lastDivisionIndex += length;
     }
@@ -97,16 +97,16 @@ std::vector<int> getTextOffsets(const std::string &text, int numberOfSections)
     return offsets;
 }
 
-std::vector<int> multiThreadKMP(const std::string &text, const std::string &keyword)
+std::vector<size_t> multiThreadKMP(const std::string &text, const std::string &keyword)
 {
-    std::vector<int> results = std::vector<int>();
-    std::vector<int> textOffsets = getTextOffsets(text, omp_get_max_threads());
+    auto results = std::vector<size_t>();
+    std::vector<size_t> textOffsets = getTextOffsets(text, omp_get_max_threads());
 #pragma omp parallel
     {
 #pragma omp for
         for (int i = 0; i < omp_get_max_threads(); i++)
         {
-            std::vector<int> tempResults = searchWord(text, keyword, textOffsets.at(i), textOffsets.at(i + 1));
+            std::vector<size_t> tempResults = searchWord(text, keyword, textOffsets.at(i), textOffsets.at(i + 1));
 
 #pragma omp critical
             results.insert(results.end(), tempResults.begin(), tempResults.end());
@@ -115,7 +115,7 @@ std::vector<int> multiThreadKMP(const std::string &text, const std::string &keyw
     return results;
 }
 
-std::vector<int> singleThreadKMP(const std::string &text, const std::string &keyword)
+std::vector<size_t> singleThreadKMP(const std::string &text, const std::string &keyword)
 {
     return searchWord(text, keyword, 0, text.length());
 }
