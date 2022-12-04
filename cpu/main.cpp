@@ -31,11 +31,10 @@ int main(int argc, char *argv[])
 
     const int iterNum = 20;
 
-    timer.start();
-
     writeCsvHeader(resultsFile);
     for (int i = 0; i < iterNum; ++i)
     {
+        timer.start();
         if (isMultiThreaded == "multithread")
         {
             results = multiThreadKMP(text, keyword);
