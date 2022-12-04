@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
 
         writeCsvHeader(resultsFile);
 
-        for (int i = 0; i <= iterNum; ++i)
+        for (int i = 0; i < iterNum; ++i)
         {
 
             timer.start();
